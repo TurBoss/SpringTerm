@@ -4,3 +4,9 @@
 venv/
 
 *.qmlc
+
+__pycache__/
+
+config\.yaml
+
+*.log

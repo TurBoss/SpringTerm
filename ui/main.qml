@@ -21,8 +21,8 @@ ApplicationWindow {
         height: 419
 
         color: "#bf000000"
-        radius: 20
-        border.width: 6
+        radius: 13
+        border.width: 3
 
         TextEdit {
 
@@ -33,10 +33,10 @@ ApplicationWindow {
             height: 403
             color: "#f8a119"
             text: qsTr("Text Edit")
-            cursorVisible: true
+            cursorVisible: false
             font.capitalization: Font.AllUppercase
             font.bold: true
-            readOnly: false
+            readOnly: true
             clip: false
             font.family: "Courier"
             font.pixelSize: 16
@@ -49,8 +49,8 @@ ApplicationWindow {
         width: 759
         height: 52
         color: "#bf000000"
-        radius: 20
-        border.width: 6
+        radius: 13
+        border.width: 3
 
         TextInput {
             id: textInput
@@ -60,6 +60,7 @@ ApplicationWindow {
             height: 36
             color: "#f8a119"
             text: qsTr("Text Input")
+            cursorVisible: true
             font.weight: Font.Bold
             font.capitalization: Font.AllUppercase
             font.family: "Courier"
@@ -70,9 +71,9 @@ ApplicationWindow {
 
     Switch {
         id: switch1
-        x: 663
-        y: 55
-        width: 100
+        x: 600
+        y: 56
+        width: 142
         height: 30
         text: qsTr("Connect")
         onPositionChanged: Manager.connection = position
