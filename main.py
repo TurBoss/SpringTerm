@@ -1,12 +1,15 @@
 import sys
 import time
-from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+
+
+from PyQt5 import QtNetwork
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout, QPushButton, QListWidget, QMessageBox, QTextEdit, \
-    QHBoxLayout, QBoxLayout, QSizePolicy, QScrollArea
-from PyQt5 import QtNetwork, QtCore
+    QHBoxLayout
 
 
 class MyApp(QWidget):
+
     threadSignal = pyqtSignal(object)
 
     def __init__(self, parent=None):
@@ -69,17 +72,11 @@ class MyApp(QWidget):
         self.list_widget.sortItems()
 
     def store(self, text):
-        """ Add item to list widget """
+        """ Add item to history widget """
         self.history_widget.addItem(text)
         self.history_widget.sortItems()
 
     def getData(self, delay=0.3):
-        '''
-        """ Add several items to list widget """
-        while self.measure:
-            self.threadSignal.emit('hallo')
-            time.sleep(delay)  # artificial time delay
-        '''
         self.add(self.tcpClient.readLine(1024).decode().rstrip())
 
     def startAq(self):
@@ -115,22 +112,20 @@ class MyApp(QWidget):
 
         self.prompt_widget.setText(text)
 
-
-
     def displayError(self, socketError):
         if socketError == QtNetwork.QAbstractSocket.RemoteHostClosedError:
             pass
         elif socketError == QtNetwork.QAbstractSocket.HostNotFoundError:
-            QMessageBox.information(self, "Fortune Client",
+            QMessageBox.information(self, "SpringTerm",
                                     "The host was not found. Please check the host name and "
                                     "port settings.")
         elif socketError == QtNetwork.QAbstractSocket.ConnectionRefusedError:
-            QMessageBox.information(self, "Fortune Client",
+            QMessageBox.information(self, "SpringTerm",
                                     "The connection was refused by the peer. Make sure the "
-                                    "fortune server is running, and check that the host name "
+                                    "spring server is running, and check that the host name "
                                     "and port settings are correct.")
         else:
-            QMessageBox.information(self, "Fortune Client",
+            QMessageBox.information(self, "SpringTerm",
                                     "The following error occurred: %s." % self.tcpSocket.errorString())
 
 
