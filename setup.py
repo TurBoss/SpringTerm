@@ -3,15 +3,15 @@
 import sys
 from cx_Freeze import setup, Executable
 
+includefiles = ["style.qss"]
+includes = []
+excludes = ['Tkinter']
+packages = []
+
+
 base = None
 if sys.platform == 'win32':
     base = 'Win32GUI'
-
-options = {
-    'build_exe': {
-        'includes': 'atexit'
-    }
-}
 
 executables = [
     Executable('main.py', base=base)
@@ -20,6 +20,10 @@ executables = [
 setup(name='SpringTerm',
       version='0.1',
       description='Spring Terminal client',
-      options=options,
+      author="TurBoss",
+      options={'build_exe': {'includes': includes,
+                             'excludes': excludes,
+                             'packages': packages,
+                             'include_files': includefiles}},
       executables=executables
 )

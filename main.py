@@ -151,8 +151,7 @@ class GenericWorker(QObject):
 if __name__ == '__main__':
     # run
     app = QApplication(sys.argv)
-
-    sty_f = QFile(os.path.join("ui", "style.qss"))
+    sty_f = QFile("style.qss")
     sty_f.open(QIODevice.ReadOnly)
     app.setStyleSheet(((sty_f.readAll()).data()).decode("utf-8"))
 
