@@ -6,20 +6,19 @@ import yaml
 
 
 from PyQt5 import QtNetwork
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QFile, QIODevice
-from PyQt5.QtGui import QTextLine
-from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout, QPushButton, QListWidget, QMessageBox, QTextEdit, \
-    QHBoxLayout, QLineEdit
+from PyQt5.QtCore import QFile, QIODevice
+from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout, QPushButton, QListWidget, QMessageBox, QHBoxLayout,\
+    QLineEdit
 
 
-class MyApp(QWidget):
-
-    threadSignal = pyqtSignal(object)
+class SpringTerm(QWidget):
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
 
-        self.tcpClient = None
+        self.tcpClient = QtNetwork.QTcpSocket()
+        self.tcpClient.readyRead.connect(self.getData)
+        self.tcpClient.error.connect(self.displayError)
 
         with open("config.yaml") as yml_file:
             self.cfg = yaml.load(yml_file)
@@ -81,23 +80,27 @@ class MyApp(QWidget):
 
         self.layout.addLayout(self.prompt_layout)
 
-        self.threadPool = []
-        self.measure = True
-
-        self.threadSignal.connect(self.add)
-
     def add(self, text):
         """ Add item to list widget """
         self.list_widget.addItem(text)
-        self.list_widget.sortItems()
 
     def store(self, text):
         """ Add item to history widget """
         self.history_widget.addItem(text)
-        self.history_widget.sortItems()
 
-    def getData(self, delay=0.3):
-        self.add(self.tcpClient.readLine(1024).decode().rstrip())
+    def getData(self):
+
+        while self.tcpClient.bytesAvailable():
+                   
+            received_data = self.tcpClient.readLine(1024)
+
+            if received_data:
+                self.add(received_data.decode().rstrip())
+
+    def send(self):
+        text = self.prompt_widget.text()
+        self.store(text)
+        self.tcpClient.write('{}'.format(text).encode())
 
     def startAq(self):
         # Network stuff
@@ -105,21 +108,11 @@ class MyApp(QWidget):
         host = self.server_widget.text()
         port = int(self.port_widget.text())
 
-        self.tcpClient = QtNetwork.QTcpSocket()
         self.tcpClient.connectToHost(host, port)
-        self.tcpClient.readyRead.connect(self.getData)
-        self.tcpClient.error.connect(lambda x: print(x))
 
         self.open_button.setEnabled(False)
         self.send_button.setEnabled(True)
         self.close_button.setEnabled(True)
-
-    def send(self):
-
-        text = self.prompt_widget.text()
-
-        self.store(text)
-        self.tcpClient.write('{}\n'.format(text).encode())
 
     def stopAq(self):
         self.measure = False
@@ -152,31 +145,13 @@ class MyApp(QWidget):
             QMessageBox.information(self, "SpringTerm",
                                     "The following error occurred: %s." % self.tcpSocket.errorString())
 
-
-class GenericWorker(QObject):
-    start = pyqtSignal(str)
-    finished = pyqtSignal()
-
-    def __init__(self, function, *args, **kwargs):
-        super(GenericWorker, self).__init__()
-        self.function = function
-        self.args = args
-        self.kwargs = kwargs
-        self.start.connect(self.run)
-
-    @pyqtSlot(str)
-    def run(self, *args, **kwargs):
-        self.function(*self.args, **self.kwargs)
-        self.finished.emit()
-
-
 if __name__ == '__main__':
     # run
     app = QApplication(sys.argv)
-    sty_f = QFile("style.qss")
-    sty_f.open(QIODevice.ReadOnly)
-    app.setStyleSheet(((sty_f.readAll()).data()).decode("utf-8"))
+    style_file = QFile("style.qss")
+    style_file.open(QIODevice.ReadOnly)
+    app.setStyleSheet(((style_file.readAll()).data()).decode("utf-8"))
 
-    test = MyApp()
-    test.show()
+    term = SpringTerm()
+    term.show()
     app.exec_()
