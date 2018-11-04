@@ -2,6 +2,8 @@ import os
 import sys
 import time
 
+import yaml
+
 
 from PyQt5 import QtNetwork
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QFile, QIODevice
@@ -19,10 +21,26 @@ class MyApp(QWidget):
 
         self.tcpClient = None
 
+        with open("config.yaml") as yml_file:
+            self.cfg = yaml.load(yml_file)
+
+        host = self.cfg["server"]["host"]
+        port = str(self.cfg["server"]["port"])
+
         self.setGeometry(0, 0, 800, 600)
         self.setWindowTitle('SpringTerm')
 
         self.layout = QVBoxLayout(self)
+
+        self.server_layout = QHBoxLayout(self)
+
+        self.server_widget = QLineEdit(host)
+        self.port_widget = QLineEdit(port)
+
+        self.server_layout.addWidget(self.server_widget)
+        self.server_layout.addWidget(self.port_widget)
+
+        self.layout.addLayout(self.server_layout)
 
         self.open_button = QPushButton("Connect")
         self.open_button.clicked.connect(self.startAq)
@@ -39,7 +57,7 @@ class MyApp(QWidget):
 
         self.layout.addLayout(self.button_layout)
 
-        self.list_layout = QHBoxLayout()
+        self.list_layout = QHBoxLayout(self)
 
         self.list_widget = QListWidget(self)
         self.history_widget = QListWidget(self)
@@ -84,8 +102,11 @@ class MyApp(QWidget):
     def startAq(self):
         # Network stuff
 
+        host = self.server_widget.text()
+        port = int(self.port_widget.text())
+
         self.tcpClient = QtNetwork.QTcpSocket()
-        self.tcpClient.connectToHost('springrts.com', 8200)
+        self.tcpClient.connectToHost(host, port)
         self.tcpClient.readyRead.connect(self.getData)
         self.tcpClient.error.connect(lambda x: print(x))
 
@@ -116,7 +137,8 @@ class MyApp(QWidget):
 
     def displayError(self, socketError):
         if socketError == QtNetwork.QAbstractSocket.RemoteHostClosedError:
-            pass
+            QMessageBox.information(self, "SpringTerm",
+                                    "The remote host closed the connection")
         elif socketError == QtNetwork.QAbstractSocket.HostNotFoundError:
             QMessageBox.information(self, "SpringTerm",
                                     "The host was not found. Please check the host name and "
