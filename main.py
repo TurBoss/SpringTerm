@@ -1,11 +1,13 @@
+import os
 import sys
 import time
 
 
 from PyQt5 import QtNetwork
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QFile, QIODevice
+from PyQt5.QtGui import QTextLine
 from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout, QPushButton, QListWidget, QMessageBox, QTextEdit, \
-    QHBoxLayout
+    QHBoxLayout, QLineEdit
 
 
 class MyApp(QWidget):
@@ -48,7 +50,7 @@ class MyApp(QWidget):
 
         self.layout.addLayout(self.list_layout)
 
-        self.prompt_widget = QTextEdit()
+        self.prompt_widget = QLineEdit()
 
         self.send_button = QPushButton("Send")
         self.send_button.clicked.connect(self.send)
@@ -93,7 +95,7 @@ class MyApp(QWidget):
 
     def send(self):
 
-        text = self.prompt_widget.toPlainText()
+        text = self.prompt_widget.text()
 
         self.store(text)
         self.tcpClient.write('{}\n'.format(text).encode())
@@ -149,6 +151,11 @@ class GenericWorker(QObject):
 if __name__ == '__main__':
     # run
     app = QApplication(sys.argv)
+
+    sty_f = QFile(os.path.join("ui", "style.qss"))
+    sty_f.open(QIODevice.ReadOnly)
+    app.setStyleSheet(((sty_f.readAll()).data()).decode("utf-8"))
+
     test = MyApp()
     test.show()
     app.exec_()
