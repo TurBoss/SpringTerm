@@ -3,7 +3,7 @@
 import sys
 from cx_Freeze import setup, Executable
 
-includefiles = ["style.qss"]
+includefiles = ["style.qss", "config.yaml"]
 includes = []
 excludes = ['Tkinter']
 packages = []
