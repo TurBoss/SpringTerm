@@ -91,7 +91,7 @@ class SpringTerm(QWidget):
     def getData(self):
 
         while self.tcpClient.bytesAvailable():
-                   
+
             received_data = self.tcpClient.readLine(1024)
 
             if received_data:
@@ -100,7 +100,7 @@ class SpringTerm(QWidget):
     def send(self):
         text = self.prompt_widget.text()
         self.store(text)
-        self.tcpClient.write('{}'.format(text).encode())
+        self.tcpClient.write('{}\n'.format(text).encode())
 
     def startAq(self):
         # Network stuff
