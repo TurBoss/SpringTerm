@@ -145,6 +145,7 @@ class SpringTerm(QWidget):
             QMessageBox.information(self, "SpringTerm",
                                     "The following error occurred: %s." % self.tcpSocket.errorString())
 
+
 if __name__ == '__main__':
     # run
     app = QApplication(sys.argv)
